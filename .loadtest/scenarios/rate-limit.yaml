@@ -24,7 +24,7 @@ flows:
           headers: { Authorization: "Bearer {{token}}" }
         checks:
           - status: 200
-        source: { file: src/auth.ts }
+        source: { file: src/limits.ts, symbol: userLimit }
 load:
   executor: constant_rate
   rate: 20/s
