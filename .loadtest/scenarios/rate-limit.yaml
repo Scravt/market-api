@@ -1,0 +1,32 @@
+version: 1
+name: rate-limit
+description: >
+  Un solo usuario pide /me a 20/s. El límite es 600 por minuto por usuario
+  (RATE_LIMIT_PER_MINUTE), así que a los ~30 s empiezan los 429 con Retry-After.
+setup:
+  - name: login
+    request:
+      method: POST
+      url: /auth/login
+      json: { email: loadtest-50@example.test, password: loadtest }
+    extract:
+      token: { json: $.access_token }
+    checks:
+      - status: 200
+    source: { file: src/auth.ts }
+flows:
+  me:
+    steps:
+      - name: me
+        request:
+          method: GET
+          url: /me
+          headers: { Authorization: "Bearer {{token}}" }
+        checks:
+          - status: 200
+        source: { file: src/auth.ts }
+load:
+  executor: constant_rate
+  rate: 20/s
+  duration: 45s
+  max_vus: 20

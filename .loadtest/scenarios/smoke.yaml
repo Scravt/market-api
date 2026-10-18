@@ -1,0 +1,28 @@
+version: 1
+name: smoke
+description: Salud, catálogo y un producto, sin login. Sirve para ver que la API responde.
+flows:
+  main:
+    steps:
+      - name: health
+        request: { method: GET, url: /health }
+        checks:
+          - status: 200
+          - { json: $.status, equals: ok }
+      - name: list_products
+        request: { method: GET, url: "/products?limit=20" }
+        extract:
+          product_id: { json: "$.items[0].id" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+      - name: get_product
+        request: { method: GET, url: "/products/{{product_id}}" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+load:
+  executor: constant_rate
+  rate: 5/s
+  duration: 10s
+  max_vus: 10

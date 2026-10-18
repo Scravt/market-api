@@ -1,0 +1,34 @@
+version: 1
+name: browse
+description: >
+  Navegación anónima del catálogo: búsqueda por texto, filtro por categoría y páginas
+  al azar. La búsqueda con `q` usa ILIKE sin índice, así que recorre los 100k productos.
+data:
+  searches: { file: data/searches.json, pick: random }
+flows:
+  browse:
+    steps:
+      - name: search
+        request: { method: GET, url: "/products?q={{searches.q}}&limit=20" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+      - name: category_page
+        request:
+          method: GET
+          url: "/products?category={{searches.category}}&sort=price&page={{$randomInt(1,50)}}"
+        extract:
+          product_id: { json: "$.items[0].id" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+      - name: get_product
+        request: { method: GET, url: "/products/{{product_id}}" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+load:
+  executor: constant_rate
+  rate: 20/s
+  duration: 30s
+  max_vus: 50
