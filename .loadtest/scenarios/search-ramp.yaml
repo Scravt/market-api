@@ -1,0 +1,23 @@
+version: 1
+name: search-ramp
+description: >
+  Rampa de búsqueda por texto, de 10/s a 150/s en 60 s, para encontrar dónde se quiebra.
+  Cada búsqueda recorre la tabla (ILIKE sin índice) y usa dos conexiones del pool
+  (la página y el count), que tiene 10.
+data:
+  searches: { file: data/searches.json, pick: random }
+flows:
+  search:
+    steps:
+      - name: search
+        request: { method: GET, url: "/products?q={{searches.q}}&limit=20" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+load:
+  executor: ramping_rate
+  start_rate: 10/s
+  stages:
+    - { target: 150/s, duration: 60s }
+  max_vus: 300
+  graceful_stop: 10s
