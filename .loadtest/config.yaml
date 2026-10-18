@@ -1,0 +1,11 @@
+version: 1
+default_environment: local
+environments:
+  local:
+    base_url: http://127.0.0.1:8080
+    allowed_hosts: [127.0.0.1, localhost]
+    limits:
+      max_rps: 2000
+      max_vus: 500
+      max_duration: 15m
+  # Cuando esté subida: un entorno `remote` con su base_url https://… y límites más bajos.

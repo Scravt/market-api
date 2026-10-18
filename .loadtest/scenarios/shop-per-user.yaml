@@ -1,0 +1,61 @@
+version: 1
+name: shop-per-user
+description: >
+  Cada VU es un usuario de data/users.csv: entra una vez (vu_setup) y después busca,
+  compra y revisa sus pedidos con pausas, como una persona. El token dura 5 minutos
+  (ACCESS_TTL_SECONDS): una corrida más larga empieza a recibir 401.
+data:
+  users: { file: data/users.csv }
+  searches: { file: data/searches.json, pick: random }
+vu_setup:
+  - name: login
+    request:
+      method: POST
+      url: /auth/login
+      json: { email: "{{users.email}}", password: "{{users.password}}" }
+    extract:
+      token: { json: $.access_token }
+      user_id: { json: $.user_id }
+    checks:
+      - status: 200
+    source: { file: src/auth.ts }
+defaults:
+  headers: { Authorization: "Bearer {{token}}" }
+  think: 1s-3s
+flows:
+  shop:
+    steps:
+      - name: search
+        request: { method: GET, url: "/products?category={{searches.category}}&limit=20" }
+        extract:
+          product_id: { json: "$.items[0].id" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+      - name: create_order
+        request:
+          method: POST
+          url: /orders
+          json: { product_id: "{{product_id}}", quantity: 1, idempotency_key: "{{$uuid}}" }
+        extract:
+          order_id: { json: $.id }
+        checks:
+          - status: 201
+          - { json: $.user_id, equals: "{{user_id}}" }
+        tags: [write]
+        source: { file: src/orders.ts }
+      - name: get_order
+        request: { method: GET, url: "/orders/{{order_id}}" }
+        checks:
+          - status: 200
+          - { json: $.user_id, equals: "{{user_id}}" }
+        source: { file: src/orders.ts }
+      - name: my_orders
+        request: { method: GET, url: "/orders?limit=10" }
+        checks:
+          - status: 200
+        source: { file: src/orders.ts }
+load:
+  executor: constant_vus
+  vus: 20
+  duration: 1m

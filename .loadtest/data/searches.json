@@ -1,0 +1,8 @@
+[
+  { "q": "premium", "category": "audio" },
+  { "q": "kit", "category": "libros" },
+  { "q": "rojo", "category": "hogar" },
+  { "q": "compacto", "category": "electrónica" },
+  { "q": "eco", "category": "jardín" },
+  { "q": "edición", "category": "videojuegos" }
+]
