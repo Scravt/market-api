@@ -2,7 +2,7 @@ version: 1
 name: search-ramp
 description: >
   Rampa de búsqueda por texto, de 10/s a 150/s en 60 s, para encontrar dónde se quiebra.
-  Cada búsqueda recorre la tabla (ILIKE sin índice) y usa dos conexiones del pool
+  Cada búsqueda hace dos consultas (la página y el count del total) y usa dos conexiones del pool
   (la página y el count), que tiene 10.
 data:
   searches: { file: data/searches.json, pick: random }

@@ -13,7 +13,7 @@ const SORTS: Record<string, string> = {
 
 /**
  * Listado con filtros y paginación por página (`page`, `limit`), con `total`.
- * `q` busca con ILIKE en nombre y descripción: sin índice de trigramas, recorre la tabla.
+ * `q` busca con ILIKE en nombre y descripción, con índices de trigramas (migración 002).
  */
 products.get('/', async (req, res) => {
   const page = intParam(req.query.page, 'page', { min: 1, max: 100_000, fallback: 1 });

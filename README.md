@@ -74,7 +74,7 @@ En el compose, las de límites y TTL se pueden pisar desde `.env`.
 
 Decisiones comunes que tienen costo, para saber qué esperar:
 
-- **Búsqueda con `q`:** ILIKE `%texto%` sin índice de trigramas, así que recorre la tabla entera, y además cuenta el total con otro `count(*)`.
+- **Búsqueda con `q`:** ILIKE `%texto%` sobre índices de trigramas (`pg_trgm`). Cada búsqueda hace dos consultas: la página, que corta en los primeros 20, y el `count(*)` del total, que es la cara (~7 ms; sin el índice eran ~74 ms y la API se planchaba en ~95 búsquedas/s con el pool de 10).
 - **Paginación por página:** `OFFSET` crece con `page`. Los pedidos usan cursor, que no tiene ese problema.
 - **Login:** scrypt cuesta ~40 ms de CPU por intento. Corre en el pool de libuv (4 hilos por defecto), así que no bloquea el event loop pero tiene su propio techo.
 - **Pool de Postgres:** 10 conexiones. Bajo concurrencia alta, los requests esperan conexión.

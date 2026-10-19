@@ -2,7 +2,7 @@ version: 1
 name: browse
 description: >
   Navegación anónima del catálogo: búsqueda por texto, filtro por categoría y páginas
-  al azar. La búsqueda con `q` usa ILIKE sin índice, así que recorre los 100k productos.
+  al azar. La búsqueda con `q` usa ILIKE con índices de trigramas y cuenta el total.
 data:
   searches: { file: data/searches.json, pick: random }
 flows:
