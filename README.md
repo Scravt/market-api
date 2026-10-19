@@ -80,7 +80,7 @@ Decisiones comunes que tienen costo, para saber qué esperar:
 - **Pool de Postgres:** 10 conexiones. Bajo concurrencia alta, los requests esperan conexión.
 - **Rate limit en memoria:** vale para una sola instancia. Con 20 VUs en un mismo usuario se llega rápido a 600 por minuto.
 - **Login por IP:** 30 por minuto. Una prueba con `vu_setup` de más de 30 VUs desde una sola máquina recibe 429 en el login, salvo que se suba `AUTH_RATE_LIMIT_PER_MINUTE`.
-- **Tokens:** el access token dura 5 minutos. Una corrida más larga que eso empieza a recibir 401.
+- **Tokens:** el access token dura 5 minutos (`ACCESS_TTL_SECONDS`). Una corrida más larga necesita `vu_refresh`, como en `session-refresh`; sin eso empieza a recibir 401.
 
 ## Pruebas con lt
 
@@ -92,6 +92,8 @@ En `.loadtest/` (todas pasan `lt check`):
 | `browse` | Búsqueda, categorías y páginas al azar, anónimo, 20/s |
 | `shop-per-user` | 20 VUs, uno por usuario de `data/users.csv`: login una vez y después buscan, compran y revisan sus pedidos con pausas |
 | `rate-limit` | Un usuario a 20/s contra un límite de 10/s: tiene que aparecer el 429 |
+| `search-ramp` | Búsqueda de 10/s a 150/s, para encontrar dónde se quiebra |
+| `session-refresh` | Como `shop-per-user`, 2 minutos, con el token renovado por `/auth/refresh` cada 45 s (`vu_refresh`) |
 
 ```powershell
 lt check shop-per-user
