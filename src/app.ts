@@ -22,7 +22,9 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-app.use('/auth', authLimit, auth);
+// Contra fuerza bruta: login y registro. El refresh token no se puede adivinar.
+app.use(['/auth/login', '/auth/register'], authLimit);
+app.use('/auth', auth);
 app.use('/products', products);
 app.use('/me', requireAuth, userLimit, me);
 app.use('/orders', requireAuth, userLimit, orders);
