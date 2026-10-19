@@ -94,6 +94,7 @@ En `.loadtest/` (todas pasan `lt check`):
 | `rate-limit` | Un usuario a 20/s contra un límite de 10/s: tiene que aparecer el 429 |
 | `search-ramp` | Búsqueda de 10/s a 150/s, para encontrar dónde se quiebra |
 | `session-refresh` | Como `shop-per-user`, 2 minutos, con el token renovado por `/auth/refresh` cada 45 s (`vu_refresh`) |
+| `upload` | 10 VUs suben un adjunto de 1 MB (multipart), verifican el `sha256`, lo bajan y lo borran |
 
 ```powershell
 lt check shop-per-user
