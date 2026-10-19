@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "lt hook pre-tool-use"
+            "command": "crabfall hook pre-tool-use"
           }
         ]
       }
@@ -14,12 +14,12 @@
   },
   "permissions": {
     "allow": [
-      "Bash(lt validate:*)",
-      "Bash(lt check:*)",
-      "Bash(lt schema)",
-      "Bash(lt findings:*)",
-      "Bash(lt compare:*)",
-      "Bash(lt report:*)"
+      "Bash(crabfall validate:*)",
+      "Bash(crabfall check:*)",
+      "Bash(crabfall schema)",
+      "Bash(crabfall findings:*)",
+      "Bash(crabfall compare:*)",
+      "Bash(crabfall report:*)"
     ]
   }
 }

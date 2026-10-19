@@ -1,6 +1,6 @@
 # market-api
 
-Tienda de ejemplo con lo que tiene una API real: Postgres, login con JWT que vence y refresh tokens, rate limiting, paginación y búsqueda sobre 100k productos, pedidos transaccionales con idempotencia y subida de archivos. Sirve para probar [lt](../load-test) contra algo que se puede subir a un servidor, con TLS.
+Tienda de ejemplo con lo que tiene una API real: Postgres, login con JWT que vence y refresh tokens, rate limiting, paginación y búsqueda sobre 100k productos, pedidos transaccionales con idempotencia y subida de archivos. Sirve para probar [Crabfall](../load-test) contra algo que se puede subir a un servidor, con TLS.
 
 A diferencia de `shop-api`, acá no hay problemas plantados: lo que aparezca bajo carga es lo que tendría una API escrita así de verdad. La sección [Bajo carga](#bajo-carga) dice dónde mirar.
 
@@ -82,9 +82,9 @@ Decisiones comunes que tienen costo, para saber qué esperar:
 - **Login por IP:** 30 por minuto. Una prueba con `vu_setup` de más de 30 VUs desde una sola máquina recibe 429 en el login, salvo que se suba `AUTH_RATE_LIMIT_PER_MINUTE`.
 - **Tokens:** el access token dura 5 minutos (`ACCESS_TTL_SECONDS`). Una corrida más larga necesita `vu_refresh`, como en `session-refresh`; sin eso empieza a recibir 401.
 
-## Pruebas con lt
+## Pruebas con Crabfall
 
-En `.loadtest/` (todas pasan `lt check`):
+En `.crabfall/` (todas pasan `crabfall check`):
 
 | Escenario | Qué prueba |
 | --- | --- |
@@ -97,9 +97,9 @@ En `.loadtest/` (todas pasan `lt check`):
 | `upload` | 10 VUs suben un adjunto de 1 MB (multipart), verifican el `sha256`, lo bajan y lo borran |
 
 ```powershell
-lt check shop-per-user
-lt approve shop-per-user --env local
-lt run shop-per-user --env local
+crabfall check shop-per-user
+crabfall approve shop-per-user --env local
+crabfall run shop-per-user --env local
 ```
 
 ## Subirla
@@ -116,4 +116,4 @@ DOMAIN=api.ejemplo.com docker compose --profile tls up -d --build
 
 Postgres y la API quedan escuchando solo en `127.0.0.1` del servidor. Lo único expuesto es Caddy.
 
-**Antes de cargarla:** probá solo servidores tuyos. Muchos hostings (sobre todo los planes gratis) prohíben las pruebas de carga o cortan el tráfico que las parece. Un VPS propio no tiene ese problema, pero conviene revisar los términos del proveedor y empezar con límites bajos en el entorno de lt.
+**Antes de cargarla:** probá solo servidores tuyos. Muchos hostings (sobre todo los planes gratis) prohíben las pruebas de carga o cortan el tráfico que las parece. Un VPS propio no tiene ese problema, pero conviene revisar los términos del proveedor y empezar con límites bajos en el entorno de Crabfall.
