@@ -61,7 +61,7 @@ Errores: siempre `{error: "…"}` con el status que corresponde. Un 401 trae `WW
 | `ACCESS_TTL_SECONDS` | `300` | Vida del access token |
 | `REFRESH_TTL_SECONDS` | `604800` (7 días) | Vida del refresh token |
 | `RATE_LIMIT_PER_MINUTE` | `600` | Requests por minuto por usuario en las rutas con Bearer; `0` lo apaga |
-| `AUTH_RATE_LIMIT_PER_MINUTE` | `30` | Login y registro por minuto por IP; `0` lo apaga |
+| `AUTH_RATE_LIMIT_PER_MINUTE` | `30` | Login y registro por minuto por IP (el refresh no cuenta); `0` lo apaga |
 | `PG_POOL_MAX` | `10` | Conexiones a Postgres |
 | `MAX_UPLOAD_MB` | `10` | Tamaño máximo por archivo |
 | `TRUST_PROXY` | `false` | `true` detrás de Caddy, para limitar por la IP real |
