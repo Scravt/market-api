@@ -88,7 +88,7 @@ You can freely use: `crabfall validate`, `crabfall check` (only against loopback
        users: { file: data/users.csv }                     # CSV with a header row: all strings
        products: { file: data/products.json, pick: random } # array of objects: keeps types
      ```
-     `pick: sequential` (default) goes through the rows in order and starts over; `random` picks one at random. Columns cannot be used in `setup`, but they can in `vu_setup` (one row per VU) and in the flows. Do not invent users or credentials: if there is no test data, leave a `todo` and ask the person. Editing the file invalidates the approval.
+     `pick: sequential` (default) goes through the rows in order and starts over; `random` picks one at random. `unique` uses each row only once in the whole run: use it when a row can only be used once (registering users, consuming coupons). When the rows run out, the load ends there (`data_exhausted` in the results); size the file for the planned iterations, and in `vu_setup` it needs at least one row per VU. Columns cannot be used in `setup`, but they can in `vu_setup` (one row per VU) and in the flows. Do not invent users or credentials: if there is no test data, leave a `todo` and ask the person. Editing the file invalidates the approval.
    - **Checks** (in each step, non-blocking): `- status: 201`, `- status_in: [200, 201]`, `- { json: $.id, exists: true }`, `- { json: $.status, equals: paid }` (accepts `"{{variable}}"`), `- { json: $.name, matches: "^a" }`, `- { header: content-type, contains: json }`, `- body_contains: ok`, `- body_matches: "regex"`. If a step has status checks, `crabfall check` does not require 2xx.
    - **Thresholds** (at the root; if any fails, `crabfall run` exits with code 1):
      ```yaml
@@ -129,6 +129,7 @@ Always start with `crabfall findings --json` (the most recent run; `crabfall fin
    - `degradation_over_time`: with constant load, latency rises steadily.
    - `long_tail`: p99 far from p50 under steady load.
    - `new_connections`: connections are not reused.
+   - `bandwidth_limit`: traffic (bytes per second) levels off while the load asks for more and latency rises: the limit may be the link, not the server. Before blaming the code, suggest measuring the link or running the generator next to the server.
 3. **Go to the code.** For each finding with a `source`, open that file and symbol and look for what would explain the evidence: synchronous CPU work, small pools, locks, queries without an index, growing collections, external calls without a concurrency limit.
 4. **Report in two parts, always separate:**
    - **Measured**: what the finding says, with its numbers (`evidence`).
@@ -141,7 +142,7 @@ Always start with `crabfall findings --json` (the most recent run; `crabfall fin
 
 When the person changed something (code, configuration, infrastructure) and ran the same scenario again, or asks "did it improve?":
 
-1. `crabfall compare --json` compares the most recent run with the previous one of the same scenario and environment (`crabfall compare <base> <new> --json` to choose them).
+1. `crabfall compare --json` compares the most recent run with the previous one of the same scenario and environment (`crabfall compare <base> <new> --json` to choose them). If the project has a baseline (`.crabfall/baselines/<scenario>.<env>.json`), `crabfall compare --baseline --json` compares against that accepted reference instead; prefer it when the person asks whether something regressed. Only the person decides to move the baseline (`crabfall baseline <run>`).
 2. **Read `warnings` first.** If the load is different (`same_load: false`) or the scenario changed, say so: the differences may come from there and not from the change.
 3. **Verdict per step (`steps[].change`)**, on p95: `better` and `worse` are large changes, consistent second by second (`sign_test`: in how many seconds it moved in that direction, and the p-value). `uncertain` is a large but inconsistent change: say it may be noise and suggest repeating the run; do not present it as an improvement or a regression. `same` is a small change.
    If `warnings` says a step's response or request changed size, mention it next to that step's latency change: it may be the explanation (more data, other pagination, a larger file) rather than a slower server.
