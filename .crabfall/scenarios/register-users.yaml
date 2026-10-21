@@ -1,0 +1,31 @@
+version: 1
+name: register-users
+description: >
+  Registra 25 usuarios nuevos, uno por fila de data/new-users.csv, cada uno una sola vez
+  (pick: unique). Pide 60 iteraciones a 1/s: la carga termina al acabarse las filas, a los ~25 s.
+  Si alguna fila se repitiera, el registro daría 409 y fallaría el check de status.
+  El email lleva `batch` para poder repetirla: `--var batch=r2` (y `--var batch=check` en el check).
+  Registro y login comparten un límite de 30 por minuto por IP (src/limits.ts): no subir la tasa.
+vars:
+  batch: r1
+data:
+  new_users: { file: data/new-users.csv, pick: unique }
+flows:
+  register:
+    steps:
+      - name: register
+        request:
+          method: POST
+          url: /auth/register
+          json:
+            email: "{{new_users.user}}-{{batch}}@example.test"
+            password: loadtest-signup
+        checks:
+          - status: 201
+          - { json: $.email, equals: "{{new_users.user}}-{{batch}}@example.test" }
+        source: { file: src/auth.ts }
+load:
+  executor: constant_rate
+  rate: 1/s
+  duration: 60s
+  max_vus: 5
