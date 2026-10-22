@@ -1,0 +1,1357 @@
+{
+  "format": 1,
+  "run_id": "20261022-202949",
+  "scenario": "search-ramp",
+  "scenario_file": ".crabfall\\scenarios\\search-ramp.yaml",
+  "environment": "local",
+  "started_at": "2026-10-22T23:29:49.0413348Z",
+  "load": {
+    "executor": "ramping_rate",
+    "start_rate": "10/s",
+    "stages": [
+      {
+        "target": "150/s",
+        "duration": "1m"
+      }
+    ],
+    "max_vus": 300,
+    "graceful_stop": "10s",
+    "max_request_rate": 150.0
+  },
+  "passed": true,
+  "duration_s": 60.0,
+  "totals": {
+    "planned": 4800,
+    "started": 4800,
+    "dropped": 0,
+    "interrupted": 0,
+    "requests": 4800,
+    "failed": 0,
+    "non_2xx": 0,
+    "checks_passed": 4800,
+    "checks_failed": 0,
+    "iteration_rate": 80.0,
+    "request_rate": 80.0,
+    "bytes_sent": 581611,
+    "bytes_received": 13747001,
+    "send_rate": 9693.3,
+    "receive_rate": 229110.6
+  },
+  "scheduler_lag_ms": {
+    "count": 4800,
+    "mean": 1.311,
+    "p50": 1.245,
+    "p90": 2.069,
+    "p95": 2.363,
+    "p99": 2.739,
+    "p999": 9.775,
+    "max": 28.847
+  },
+  "steps": [
+    {
+      "name": "search",
+      "flow": "search",
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/products?q={{searches.q}}&limit=20",
+      "source": {
+        "file": "src/products.ts"
+      },
+      "requests": 4800,
+      "bytes_sent": 581611,
+      "bytes_received": 13747001,
+      "failed": 0,
+      "non_2xx": 0,
+      "status_codes": {
+        "200": 4800
+      },
+      "failures": {},
+      "checks": [
+        {
+          "check": "status == 200",
+          "passed": 4800,
+          "failed": 0
+        }
+      ],
+      "latency_ms": {
+        "count": 4800,
+        "mean": 8.462,
+        "p50": 8.287,
+        "p90": 10.151,
+        "p95": 10.743,
+        "p99": 11.951,
+        "p999": 30.143,
+        "max": 78.527
+      },
+      "ttfb_ms": {
+        "count": 4800,
+        "mean": 7.107,
+        "p50": 6.899,
+        "p90": 8.679,
+        "p95": 9.055,
+        "p99": 10.215,
+        "p999": 17.471,
+        "max": 75.519
+      },
+      "connect_ms": {
+        "count": 5,
+        "mean": 0.459,
+        "p50": 0.279,
+        "p90": 1.264,
+        "p95": 1.264,
+        "p99": 1.264,
+        "p999": 1.264,
+        "max": 1.264
+      },
+      "tls_ms": null,
+      "dns_ms": {
+        "count": 5,
+        "mean": 0.001,
+        "p50": 0.001,
+        "p90": 0.002,
+        "p95": 0.002,
+        "p99": 0.002,
+        "p999": 0.002,
+        "max": 0.002
+      }
+    }
+  ],
+  "warnings": [],
+  "findings": [],
+  "series": {
+    "window_s": 1,
+    "points": [
+      {
+        "t": 0,
+        "started": 12,
+        "dropped": 0,
+        "requests": 12,
+        "errors": 0,
+        "bytes_sent": 1452,
+        "bytes_received": 34364,
+        "p50": 10.879,
+        "p95": 78.847,
+        "p99": 78.847
+      },
+      {
+        "t": 1,
+        "started": 13,
+        "dropped": 0,
+        "requests": 13,
+        "errors": 0,
+        "bytes_sent": 1598,
+        "bytes_received": 37587,
+        "p50": 10.431,
+        "p95": 11.455,
+        "p99": 11.455
+      },
+      {
+        "t": 2,
+        "started": 16,
+        "dropped": 0,
+        "requests": 16,
+        "errors": 0,
+        "bytes_sent": 1931,
+        "bytes_received": 45771,
+        "p50": 8.895,
+        "p95": 11.711,
+        "p99": 11.711
+      },
+      {
+        "t": 3,
+        "started": 18,
+        "dropped": 0,
+        "requests": 18,
+        "errors": 0,
+        "bytes_sent": 2183,
+        "bytes_received": 51625,
+        "p50": 8.767,
+        "p95": 11.199,
+        "p99": 11.199
+      },
+      {
+        "t": 4,
+        "started": 21,
+        "dropped": 0,
+        "requests": 20,
+        "errors": 0,
+        "bytes_sent": 2432,
+        "bytes_received": 57545,
+        "p50": 9.151,
+        "p95": 10.623,
+        "p99": 11.391
+      },
+      {
+        "t": 5,
+        "started": 22,
+        "dropped": 0,
+        "requests": 23,
+        "errors": 0,
+        "bytes_sent": 2793,
+        "bytes_received": 65986,
+        "p50": 9.215,
+        "p95": 11.007,
+        "p99": 11.199
+      },
+      {
+        "t": 6,
+        "started": 26,
+        "dropped": 0,
+        "requests": 25,
+        "errors": 0,
+        "bytes_sent": 3012,
+        "bytes_received": 71562,
+        "p50": 8.831,
+        "p95": 9.535,
+        "p99": 10.047
+      },
+      {
+        "t": 7,
+        "started": 27,
+        "dropped": 0,
+        "requests": 28,
+        "errors": 0,
+        "bytes_sent": 3393,
+        "bytes_received": 80196,
+        "p50": 8.511,
+        "p95": 11.199,
+        "p99": 11.263
+      },
+      {
+        "t": 8,
+        "started": 30,
+        "dropped": 0,
+        "requests": 30,
+        "errors": 0,
+        "bytes_sent": 3648,
+        "bytes_received": 86099,
+        "p50": 8.447,
+        "p95": 11.007,
+        "p99": 11.135
+      },
+      {
+        "t": 9,
+        "started": 32,
+        "dropped": 0,
+        "requests": 32,
+        "errors": 0,
+        "bytes_sent": 3873,
+        "bytes_received": 91928,
+        "p50": 8.511,
+        "p95": 10.495,
+        "p99": 10.879
+      },
+      {
+        "t": 10,
+        "started": 35,
+        "dropped": 0,
+        "requests": 34,
+        "errors": 0,
+        "bytes_sent": 4120,
+        "bytes_received": 97494,
+        "p50": 8.511,
+        "p95": 11.391,
+        "p99": 11.455
+      },
+      {
+        "t": 11,
+        "started": 36,
+        "dropped": 0,
+        "requests": 37,
+        "errors": 0,
+        "bytes_sent": 4514,
+        "bytes_received": 106353,
+        "p50": 9.215,
+        "p95": 11.199,
+        "p99": 11.455
+      },
+      {
+        "t": 12,
+        "started": 40,
+        "dropped": 0,
+        "requests": 39,
+        "errors": 0,
+        "bytes_sent": 4730,
+        "bytes_received": 111910,
+        "p50": 8.959,
+        "p95": 11.455,
+        "p99": 11.583
+      },
+      {
+        "t": 13,
+        "started": 41,
+        "dropped": 0,
+        "requests": 42,
+        "errors": 0,
+        "bytes_sent": 5110,
+        "bytes_received": 120485,
+        "p50": 8.639,
+        "p95": 10.559,
+        "p99": 11.263
+      },
+      {
+        "t": 14,
+        "started": 44,
+        "dropped": 0,
+        "requests": 44,
+        "errors": 0,
+        "bytes_sent": 5344,
+        "bytes_received": 126463,
+        "p50": 8.511,
+        "p95": 10.495,
+        "p99": 11.199
+      },
+      {
+        "t": 15,
+        "started": 46,
+        "dropped": 0,
+        "requests": 46,
+        "errors": 0,
+        "bytes_sent": 5559,
+        "bytes_received": 131704,
+        "p50": 8.959,
+        "p95": 10.559,
+        "p99": 10.751
+      },
+      {
+        "t": 16,
+        "started": 49,
+        "dropped": 0,
+        "requests": 48,
+        "errors": 0,
+        "bytes_sent": 5830,
+        "bytes_received": 137361,
+        "p50": 8.319,
+        "p95": 10.943,
+        "p99": 11.455
+      },
+      {
+        "t": 17,
+        "started": 50,
+        "dropped": 0,
+        "requests": 51,
+        "errors": 0,
+        "bytes_sent": 6197,
+        "bytes_received": 146349,
+        "p50": 8.959,
+        "p95": 10.751,
+        "p99": 11.583
+      },
+      {
+        "t": 18,
+        "started": 54,
+        "dropped": 0,
+        "requests": 53,
+        "errors": 0,
+        "bytes_sent": 6409,
+        "bytes_received": 151724,
+        "p50": 8.255,
+        "p95": 10.367,
+        "p99": 11.903
+      },
+      {
+        "t": 19,
+        "started": 55,
+        "dropped": 0,
+        "requests": 56,
+        "errors": 0,
+        "bytes_sent": 6797,
+        "bytes_received": 160640,
+        "p50": 8.383,
+        "p95": 10.751,
+        "p99": 12.031
+      },
+      {
+        "t": 20,
+        "started": 58,
+        "dropped": 0,
+        "requests": 58,
+        "errors": 0,
+        "bytes_sent": 6972,
+        "bytes_received": 165216,
+        "p50": 8.255,
+        "p95": 10.559,
+        "p99": 12.031
+      },
+      {
+        "t": 21,
+        "started": 60,
+        "dropped": 0,
+        "requests": 60,
+        "errors": 0,
+        "bytes_sent": 7234,
+        "bytes_received": 171371,
+        "p50": 8.159,
+        "p95": 9.983,
+        "p99": 10.943
+      },
+      {
+        "t": 22,
+        "started": 63,
+        "dropped": 0,
+        "requests": 62,
+        "errors": 0,
+        "bytes_sent": 7533,
+        "bytes_received": 178054,
+        "p50": 8.511,
+        "p95": 11.135,
+        "p99": 11.263
+      },
+      {
+        "t": 23,
+        "started": 64,
+        "dropped": 0,
+        "requests": 65,
+        "errors": 0,
+        "bytes_sent": 7892,
+        "bytes_received": 186278,
+        "p50": 8.511,
+        "p95": 11.327,
+        "p99": 16.895
+      },
+      {
+        "t": 24,
+        "started": 68,
+        "dropped": 0,
+        "requests": 67,
+        "errors": 0,
+        "bytes_sent": 8113,
+        "bytes_received": 191704,
+        "p50": 8.255,
+        "p95": 10.943,
+        "p99": 12.543
+      },
+      {
+        "t": 25,
+        "started": 69,
+        "dropped": 0,
+        "requests": 70,
+        "errors": 0,
+        "bytes_sent": 8488,
+        "bytes_received": 200569,
+        "p50": 8.767,
+        "p95": 10.751,
+        "p99": 11.071
+      },
+      {
+        "t": 26,
+        "started": 72,
+        "dropped": 0,
+        "requests": 71,
+        "errors": 0,
+        "bytes_sent": 8667,
+        "bytes_received": 204109,
+        "p50": 8.447,
+        "p95": 11.455,
+        "p99": 12.479
+      },
+      {
+        "t": 27,
+        "started": 74,
+        "dropped": 0,
+        "requests": 75,
+        "errors": 0,
+        "bytes_sent": 9110,
+        "bytes_received": 215166,
+        "p50": 8.447,
+        "p95": 10.815,
+        "p99": 11.263
+      },
+      {
+        "t": 28,
+        "started": 77,
+        "dropped": 0,
+        "requests": 76,
+        "errors": 0,
+        "bytes_sent": 9180,
+        "bytes_received": 217191,
+        "p50": 8.575,
+        "p95": 13.055,
+        "p99": 25.471
+      },
+      {
+        "t": 29,
+        "started": 78,
+        "dropped": 0,
+        "requests": 79,
+        "errors": 0,
+        "bytes_sent": 9615,
+        "bytes_received": 226774,
+        "p50": 8.511,
+        "p95": 10.687,
+        "p99": 11.135
+      },
+      {
+        "t": 30,
+        "started": 82,
+        "dropped": 0,
+        "requests": 81,
+        "errors": 0,
+        "bytes_sent": 9854,
+        "bytes_received": 232734,
+        "p50": 8.575,
+        "p95": 10.431,
+        "p99": 11.967
+      },
+      {
+        "t": 31,
+        "started": 83,
+        "dropped": 0,
+        "requests": 83,
+        "errors": 0,
+        "bytes_sent": 10063,
+        "bytes_received": 237849,
+        "p50": 8.383,
+        "p95": 10.687,
+        "p99": 12.095
+      },
+      {
+        "t": 32,
+        "started": 86,
+        "dropped": 0,
+        "requests": 86,
+        "errors": 0,
+        "bytes_sent": 10331,
+        "bytes_received": 245046,
+        "p50": 8.031,
+        "p95": 10.111,
+        "p99": 10.879
+      },
+      {
+        "t": 33,
+        "started": 88,
+        "dropped": 0,
+        "requests": 88,
+        "errors": 0,
+        "bytes_sent": 10618,
+        "bytes_received": 251438,
+        "p50": 8.511,
+        "p95": 10.815,
+        "p99": 11.839
+      },
+      {
+        "t": 34,
+        "started": 91,
+        "dropped": 0,
+        "requests": 91,
+        "errors": 0,
+        "bytes_sent": 11026,
+        "bytes_received": 260901,
+        "p50": 8.447,
+        "p95": 10.751,
+        "p99": 11.647
+      },
+      {
+        "t": 35,
+        "started": 92,
+        "dropped": 0,
+        "requests": 93,
+        "errors": 0,
+        "bytes_sent": 11248,
+        "bytes_received": 265883,
+        "p50": 8.895,
+        "p95": 11.519,
+        "p99": 13.439
+      },
+      {
+        "t": 36,
+        "started": 96,
+        "dropped": 0,
+        "requests": 95,
+        "errors": 0,
+        "bytes_sent": 11506,
+        "bytes_received": 271845,
+        "p50": 8.319,
+        "p95": 10.879,
+        "p99": 11.583
+      },
+      {
+        "t": 37,
+        "started": 97,
+        "dropped": 0,
+        "requests": 97,
+        "errors": 0,
+        "bytes_sent": 11760,
+        "bytes_received": 277523,
+        "p50": 8.703,
+        "p95": 15.423,
+        "p99": 46.591
+      },
+      {
+        "t": 38,
+        "started": 100,
+        "dropped": 0,
+        "requests": 100,
+        "errors": 0,
+        "bytes_sent": 12085,
+        "bytes_received": 285865,
+        "p50": 8.639,
+        "p95": 11.135,
+        "p99": 12.287
+      },
+      {
+        "t": 39,
+        "started": 102,
+        "dropped": 0,
+        "requests": 102,
+        "errors": 0,
+        "bytes_sent": 12369,
+        "bytes_received": 292434,
+        "p50": 8.319,
+        "p95": 10.943,
+        "p99": 11.455
+      },
+      {
+        "t": 40,
+        "started": 105,
+        "dropped": 0,
+        "requests": 105,
+        "errors": 0,
+        "bytes_sent": 12714,
+        "bytes_received": 300670,
+        "p50": 8.127,
+        "p95": 10.431,
+        "p99": 10.815
+      },
+      {
+        "t": 41,
+        "started": 106,
+        "dropped": 0,
+        "requests": 107,
+        "errors": 0,
+        "bytes_sent": 13012,
+        "bytes_received": 307167,
+        "p50": 8.383,
+        "p95": 11.135,
+        "p99": 11.967
+      },
+      {
+        "t": 42,
+        "started": 110,
+        "dropped": 0,
+        "requests": 109,
+        "errors": 0,
+        "bytes_sent": 13269,
+        "bytes_received": 312767,
+        "p50": 8.575,
+        "p95": 11.967,
+        "p99": 12.607
+      },
+      {
+        "t": 43,
+        "started": 111,
+        "dropped": 0,
+        "requests": 111,
+        "errors": 0,
+        "bytes_sent": 13463,
+        "bytes_received": 317965,
+        "p50": 7.967,
+        "p95": 10.751,
+        "p99": 11.263
+      },
+      {
+        "t": 44,
+        "started": 114,
+        "dropped": 0,
+        "requests": 114,
+        "errors": 0,
+        "bytes_sent": 13835,
+        "bytes_received": 327030,
+        "p50": 7.839,
+        "p95": 9.727,
+        "p99": 9.983
+      },
+      {
+        "t": 45,
+        "started": 116,
+        "dropped": 0,
+        "requests": 116,
+        "errors": 0,
+        "bytes_sent": 14032,
+        "bytes_received": 332017,
+        "p50": 8.127,
+        "p95": 10.431,
+        "p99": 11.199
+      },
+      {
+        "t": 46,
+        "started": 119,
+        "dropped": 0,
+        "requests": 119,
+        "errors": 0,
+        "bytes_sent": 14387,
+        "bytes_received": 340186,
+        "p50": 8.031,
+        "p95": 10.367,
+        "p99": 11.071
+      },
+      {
+        "t": 47,
+        "started": 120,
+        "dropped": 0,
+        "requests": 121,
+        "errors": 0,
+        "bytes_sent": 14686,
+        "bytes_received": 346580,
+        "p50": 8.255,
+        "p95": 10.367,
+        "p99": 10.943
+      },
+      {
+        "t": 48,
+        "started": 124,
+        "dropped": 0,
+        "requests": 123,
+        "errors": 0,
+        "bytes_sent": 14913,
+        "bytes_received": 352113,
+        "p50": 8.063,
+        "p95": 10.815,
+        "p99": 25.215
+      },
+      {
+        "t": 49,
+        "started": 125,
+        "dropped": 0,
+        "requests": 125,
+        "errors": 0,
+        "bytes_sent": 15159,
+        "bytes_received": 358237,
+        "p50": 7.999,
+        "p95": 10.239,
+        "p99": 11.199
+      },
+      {
+        "t": 50,
+        "started": 128,
+        "dropped": 0,
+        "requests": 128,
+        "errors": 0,
+        "bytes_sent": 15540,
+        "bytes_received": 366903,
+        "p50": 8.063,
+        "p95": 10.495,
+        "p99": 11.199
+      },
+      {
+        "t": 51,
+        "started": 130,
+        "dropped": 0,
+        "requests": 130,
+        "errors": 0,
+        "bytes_sent": 15756,
+        "bytes_received": 372643,
+        "p50": 8.031,
+        "p95": 10.047,
+        "p99": 10.751
+      },
+      {
+        "t": 52,
+        "started": 133,
+        "dropped": 0,
+        "requests": 132,
+        "errors": 0,
+        "bytes_sent": 16025,
+        "bytes_received": 378462,
+        "p50": 8.127,
+        "p95": 10.175,
+        "p99": 10.623
+      },
+      {
+        "t": 53,
+        "started": 134,
+        "dropped": 0,
+        "requests": 135,
+        "errors": 0,
+        "bytes_sent": 16278,
+        "bytes_received": 385132,
+        "p50": 7.807,
+        "p95": 10.239,
+        "p99": 10.815
+      },
+      {
+        "t": 54,
+        "started": 138,
+        "dropped": 0,
+        "requests": 138,
+        "errors": 0,
+        "bytes_sent": 16747,
+        "bytes_received": 395399,
+        "p50": 7.967,
+        "p95": 9.919,
+        "p99": 10.623
+      },
+      {
+        "t": 55,
+        "started": 139,
+        "dropped": 0,
+        "requests": 139,
+        "errors": 0,
+        "bytes_sent": 16794,
+        "bytes_received": 397657,
+        "p50": 7.967,
+        "p95": 10.047,
+        "p99": 11.263
+      },
+      {
+        "t": 56,
+        "started": 142,
+        "dropped": 0,
+        "requests": 142,
+        "errors": 0,
+        "bytes_sent": 17206,
+        "bytes_received": 406664,
+        "p50": 7.903,
+        "p95": 10.431,
+        "p99": 11.007
+      },
+      {
+        "t": 57,
+        "started": 144,
+        "dropped": 0,
+        "requests": 144,
+        "errors": 0,
+        "bytes_sent": 17404,
+        "bytes_received": 412009,
+        "p50": 7.967,
+        "p95": 9.983,
+        "p99": 10.943
+      },
+      {
+        "t": 58,
+        "started": 147,
+        "dropped": 0,
+        "requests": 146,
+        "errors": 0,
+        "bytes_sent": 17629,
+        "bytes_received": 417029,
+        "p50": 8.159,
+        "p95": 11.199,
+        "p99": 14.015
+      },
+      {
+        "t": 59,
+        "started": 148,
+        "dropped": 0,
+        "requests": 149,
+        "errors": 0,
+        "bytes_sent": 18051,
+        "bytes_received": 426370,
+        "p50": 8.031,
+        "p95": 10.303,
+        "p99": 11.455
+      },
+      {
+        "t": 60,
+        "started": 0,
+        "dropped": 0,
+        "requests": 1,
+        "errors": 0,
+        "bytes_sent": 122,
+        "bytes_received": 2905,
+        "p50": 8.159,
+        "p95": 8.159,
+        "p99": 8.159
+      }
+    ],
+    "steps": [
+      {
+        "name": "search",
+        "points": [
+          {
+            "t": 0,
+            "requests": 12,
+            "errors": 0,
+            "p50": 10.879,
+            "p95": 78.847,
+            "p99": 78.847
+          },
+          {
+            "t": 1,
+            "requests": 13,
+            "errors": 0,
+            "p50": 10.431,
+            "p95": 11.455,
+            "p99": 11.455
+          },
+          {
+            "t": 2,
+            "requests": 16,
+            "errors": 0,
+            "p50": 8.895,
+            "p95": 11.711,
+            "p99": 11.711
+          },
+          {
+            "t": 3,
+            "requests": 18,
+            "errors": 0,
+            "p50": 8.767,
+            "p95": 11.199,
+            "p99": 11.199
+          },
+          {
+            "t": 4,
+            "requests": 20,
+            "errors": 0,
+            "p50": 9.151,
+            "p95": 10.623,
+            "p99": 11.391
+          },
+          {
+            "t": 5,
+            "requests": 23,
+            "errors": 0,
+            "p50": 9.215,
+            "p95": 11.007,
+            "p99": 11.199
+          },
+          {
+            "t": 6,
+            "requests": 25,
+            "errors": 0,
+            "p50": 8.831,
+            "p95": 9.535,
+            "p99": 10.047
+          },
+          {
+            "t": 7,
+            "requests": 28,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 11.199,
+            "p99": 11.263
+          },
+          {
+            "t": 8,
+            "requests": 30,
+            "errors": 0,
+            "p50": 8.447,
+            "p95": 11.007,
+            "p99": 11.135
+          },
+          {
+            "t": 9,
+            "requests": 32,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 10.495,
+            "p99": 10.879
+          },
+          {
+            "t": 10,
+            "requests": 34,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 11.391,
+            "p99": 11.455
+          },
+          {
+            "t": 11,
+            "requests": 37,
+            "errors": 0,
+            "p50": 9.215,
+            "p95": 11.199,
+            "p99": 11.455
+          },
+          {
+            "t": 12,
+            "requests": 39,
+            "errors": 0,
+            "p50": 8.959,
+            "p95": 11.455,
+            "p99": 11.583
+          },
+          {
+            "t": 13,
+            "requests": 42,
+            "errors": 0,
+            "p50": 8.639,
+            "p95": 10.559,
+            "p99": 11.263
+          },
+          {
+            "t": 14,
+            "requests": 44,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 10.495,
+            "p99": 11.199
+          },
+          {
+            "t": 15,
+            "requests": 46,
+            "errors": 0,
+            "p50": 8.959,
+            "p95": 10.559,
+            "p99": 10.751
+          },
+          {
+            "t": 16,
+            "requests": 48,
+            "errors": 0,
+            "p50": 8.319,
+            "p95": 10.943,
+            "p99": 11.455
+          },
+          {
+            "t": 17,
+            "requests": 51,
+            "errors": 0,
+            "p50": 8.959,
+            "p95": 10.751,
+            "p99": 11.583
+          },
+          {
+            "t": 18,
+            "requests": 53,
+            "errors": 0,
+            "p50": 8.255,
+            "p95": 10.367,
+            "p99": 11.903
+          },
+          {
+            "t": 19,
+            "requests": 56,
+            "errors": 0,
+            "p50": 8.383,
+            "p95": 10.751,
+            "p99": 12.031
+          },
+          {
+            "t": 20,
+            "requests": 58,
+            "errors": 0,
+            "p50": 8.255,
+            "p95": 10.559,
+            "p99": 12.031
+          },
+          {
+            "t": 21,
+            "requests": 60,
+            "errors": 0,
+            "p50": 8.159,
+            "p95": 9.983,
+            "p99": 10.943
+          },
+          {
+            "t": 22,
+            "requests": 62,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 11.135,
+            "p99": 11.263
+          },
+          {
+            "t": 23,
+            "requests": 65,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 11.327,
+            "p99": 16.895
+          },
+          {
+            "t": 24,
+            "requests": 67,
+            "errors": 0,
+            "p50": 8.255,
+            "p95": 10.943,
+            "p99": 12.543
+          },
+          {
+            "t": 25,
+            "requests": 70,
+            "errors": 0,
+            "p50": 8.767,
+            "p95": 10.751,
+            "p99": 11.071
+          },
+          {
+            "t": 26,
+            "requests": 71,
+            "errors": 0,
+            "p50": 8.447,
+            "p95": 11.455,
+            "p99": 12.479
+          },
+          {
+            "t": 27,
+            "requests": 75,
+            "errors": 0,
+            "p50": 8.447,
+            "p95": 10.815,
+            "p99": 11.263
+          },
+          {
+            "t": 28,
+            "requests": 76,
+            "errors": 0,
+            "p50": 8.575,
+            "p95": 13.055,
+            "p99": 25.471
+          },
+          {
+            "t": 29,
+            "requests": 79,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 10.687,
+            "p99": 11.135
+          },
+          {
+            "t": 30,
+            "requests": 81,
+            "errors": 0,
+            "p50": 8.575,
+            "p95": 10.431,
+            "p99": 11.967
+          },
+          {
+            "t": 31,
+            "requests": 83,
+            "errors": 0,
+            "p50": 8.383,
+            "p95": 10.687,
+            "p99": 12.095
+          },
+          {
+            "t": 32,
+            "requests": 86,
+            "errors": 0,
+            "p50": 8.031,
+            "p95": 10.111,
+            "p99": 10.879
+          },
+          {
+            "t": 33,
+            "requests": 88,
+            "errors": 0,
+            "p50": 8.511,
+            "p95": 10.815,
+            "p99": 11.839
+          },
+          {
+            "t": 34,
+            "requests": 91,
+            "errors": 0,
+            "p50": 8.447,
+            "p95": 10.751,
+            "p99": 11.647
+          },
+          {
+            "t": 35,
+            "requests": 93,
+            "errors": 0,
+            "p50": 8.895,
+            "p95": 11.519,
+            "p99": 13.439
+          },
+          {
+            "t": 36,
+            "requests": 95,
+            "errors": 0,
+            "p50": 8.319,
+            "p95": 10.879,
+            "p99": 11.583
+          },
+          {
+            "t": 37,
+            "requests": 97,
+            "errors": 0,
+            "p50": 8.703,
+            "p95": 15.423,
+            "p99": 46.591
+          },
+          {
+            "t": 38,
+            "requests": 100,
+            "errors": 0,
+            "p50": 8.639,
+            "p95": 11.135,
+            "p99": 12.287
+          },
+          {
+            "t": 39,
+            "requests": 102,
+            "errors": 0,
+            "p50": 8.319,
+            "p95": 10.943,
+            "p99": 11.455
+          },
+          {
+            "t": 40,
+            "requests": 105,
+            "errors": 0,
+            "p50": 8.127,
+            "p95": 10.431,
+            "p99": 10.815
+          },
+          {
+            "t": 41,
+            "requests": 107,
+            "errors": 0,
+            "p50": 8.383,
+            "p95": 11.135,
+            "p99": 11.967
+          },
+          {
+            "t": 42,
+            "requests": 109,
+            "errors": 0,
+            "p50": 8.575,
+            "p95": 11.967,
+            "p99": 12.607
+          },
+          {
+            "t": 43,
+            "requests": 111,
+            "errors": 0,
+            "p50": 7.967,
+            "p95": 10.751,
+            "p99": 11.263
+          },
+          {
+            "t": 44,
+            "requests": 114,
+            "errors": 0,
+            "p50": 7.839,
+            "p95": 9.727,
+            "p99": 9.983
+          },
+          {
+            "t": 45,
+            "requests": 116,
+            "errors": 0,
+            "p50": 8.127,
+            "p95": 10.431,
+            "p99": 11.199
+          },
+          {
+            "t": 46,
+            "requests": 119,
+            "errors": 0,
+            "p50": 8.031,
+            "p95": 10.367,
+            "p99": 11.071
+          },
+          {
+            "t": 47,
+            "requests": 121,
+            "errors": 0,
+            "p50": 8.255,
+            "p95": 10.367,
+            "p99": 10.943
+          },
+          {
+            "t": 48,
+            "requests": 123,
+            "errors": 0,
+            "p50": 8.063,
+            "p95": 10.815,
+            "p99": 25.215
+          },
+          {
+            "t": 49,
+            "requests": 125,
+            "errors": 0,
+            "p50": 7.999,
+            "p95": 10.239,
+            "p99": 11.199
+          },
+          {
+            "t": 50,
+            "requests": 128,
+            "errors": 0,
+            "p50": 8.063,
+            "p95": 10.495,
+            "p99": 11.199
+          },
+          {
+            "t": 51,
+            "requests": 130,
+            "errors": 0,
+            "p50": 8.031,
+            "p95": 10.047,
+            "p99": 10.751
+          },
+          {
+            "t": 52,
+            "requests": 132,
+            "errors": 0,
+            "p50": 8.127,
+            "p95": 10.175,
+            "p99": 10.623
+          },
+          {
+            "t": 53,
+            "requests": 135,
+            "errors": 0,
+            "p50": 7.807,
+            "p95": 10.239,
+            "p99": 10.815
+          },
+          {
+            "t": 54,
+            "requests": 138,
+            "errors": 0,
+            "p50": 7.967,
+            "p95": 9.919,
+            "p99": 10.623
+          },
+          {
+            "t": 55,
+            "requests": 139,
+            "errors": 0,
+            "p50": 7.967,
+            "p95": 10.047,
+            "p99": 11.263
+          },
+          {
+            "t": 56,
+            "requests": 142,
+            "errors": 0,
+            "p50": 7.903,
+            "p95": 10.431,
+            "p99": 11.007
+          },
+          {
+            "t": 57,
+            "requests": 144,
+            "errors": 0,
+            "p50": 7.967,
+            "p95": 9.983,
+            "p99": 10.943
+          },
+          {
+            "t": 58,
+            "requests": 146,
+            "errors": 0,
+            "p50": 8.159,
+            "p95": 11.199,
+            "p99": 14.015
+          },
+          {
+            "t": 59,
+            "requests": 149,
+            "errors": 0,
+            "p50": 8.031,
+            "p95": 10.303,
+            "p99": 11.455
+          },
+          {
+            "t": 60,
+            "requests": 1,
+            "errors": 0,
+            "p50": 8.159,
+            "p95": 8.159,
+            "p99": 8.159
+          }
+        ]
+      }
+    ]
+  },
+  "approval": {
+    "hash": "5d84058886f687441a3d798079187ae91e3de80791fe5f4f5e69acaa454e3f39",
+    "approved_by": "Gonzalo",
+    "approved_at": "2026-10-22T23:29:46.5367314Z"
+  }
+}
