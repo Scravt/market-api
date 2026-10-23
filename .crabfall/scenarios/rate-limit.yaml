@@ -8,12 +8,15 @@ setup:
     request:
       method: POST
       url: /auth/login
+      headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
       json: { email: loadtest-50@example.test, password: loadtest }
     extract:
       token: { json: $.access_token }
     checks:
       - status: 200
     source: { file: src/auth.ts }
+defaults:
+  headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
 flows:
   me:
     steps:

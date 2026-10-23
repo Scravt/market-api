@@ -12,6 +12,7 @@ vu_setup:
     request:
       method: POST
       url: /auth/login
+      headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
       json: { email: "{{users.email}}", password: "{{users.password}}" }
     extract:
       token: { json: $.access_token }
@@ -20,7 +21,7 @@ vu_setup:
       - status: 200
     source: { file: src/auth.ts }
 defaults:
-  headers: { Authorization: "Bearer {{token}}" }
+  headers: { Authorization: "Bearer {{token}}", X-Lab-Key: "{{env.LAB_KEY}}" }
   think: 1s-3s
 flows:
   shop:

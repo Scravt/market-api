@@ -10,6 +10,8 @@ vars:
   batch: r1
 data:
   new_users: { file: data/new-users.csv, pick: unique }
+defaults:
+  headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
 flows:
   register:
     steps:

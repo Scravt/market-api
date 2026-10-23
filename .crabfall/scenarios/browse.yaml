@@ -5,6 +5,8 @@ description: >
   al azar. La búsqueda con `q` usa ILIKE con índices de trigramas y cuenta el total.
 data:
   searches: { file: data/searches.json, pick: random }
+defaults:
+  headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
 flows:
   browse:
     steps:
