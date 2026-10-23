@@ -1,5 +1,8 @@
 version: 1
 default_environment: local
+# X-Lab-Key: la clave que Caddy exige en el servidor (ver docker/Caddyfile). Viene de LAB_KEY en el
+# .env de la raíz, el mismo que lee Docker Compose. Los escenarios la mandan en todos los entornos.
+secrets: [LAB_KEY]
 environments:
   local:
     base_url: http://127.0.0.1:8080
@@ -8,4 +11,12 @@ environments:
       max_rps: 2000
       max_vus: 500
       max_duration: 15m
-  # Cuando esté subida: un entorno `remote` con su base_url https://… y límites más bajos.
+  # El servidor, detrás de Caddy con TLS. Para usarlo: poné el dominio en las dos líneas y sacá los
+  # comentarios. Límites bajos para empezar; subilos cuando sepas cuánto aguanta el VPS y tu conexión.
+  # remote:
+  #   base_url: https://market.example.com
+  #   allowed_hosts: [market.example.com]
+  #   limits:
+  #     max_rps: 200
+  #     max_vus: 100
+  #     max_duration: 10m

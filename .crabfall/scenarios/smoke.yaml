@@ -1,6 +1,8 @@
 version: 1
 name: smoke
 description: Salud, catálogo y un producto, sin login. Sirve para ver que la API responde.
+defaults:
+  headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
 flows:
   main:
     steps:

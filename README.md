@@ -9,7 +9,7 @@ A diferencia de `shop-api`, acá no hay problemas plantados: lo que aparezca baj
 Con Docker (en esta máquina, Docker está en WSL):
 
 ```bash
-cp .env.example .env            # y poné un JWT_SECRET largo
+cp .env.example .env            # y poné un JWT_SECRET y una LAB_KEY largos
 docker compose up -d --build    # API en http://127.0.0.1:8080, Postgres en 127.0.0.1:5434
 docker compose logs -f api
 ```
@@ -65,10 +65,11 @@ Errores: siempre `{error: "…"}` con el status que corresponde. Un 401 trae `WW
 | `PG_POOL_MAX` | `10` | Conexiones a Postgres |
 | `MAX_UPLOAD_MB` | `10` | Tamaño máximo por archivo |
 | `TRUST_PROXY` | `false` | `true` detrás de Caddy, para limitar por la IP real |
+| `LAB_KEY` | — (obligatoria) | Clave del laboratorio: con el perfil `tls`, Caddy rechaza con 403 todo request sin `X-Lab-Key: <LAB_KEY>`. Los escenarios de Crabfall la mandan siempre |
 | `DATABASE_URL`, `HOST`, `PORT`, `UPLOAD_DIR` | ver `src/config.ts` | |
 | `SEED`, `SEED_PRODUCTS`, `SEED_USERS`, `SEED_PASSWORD` | `100000`, `50`, `loadtest` | Datos de prueba al arrancar |
 
-En el compose, las de límites y TTL se pueden pisar desde `.env`.
+En el compose, las de límites, TTL, `MAX_UPLOAD_MB` y `SEED_PASSWORD` se pueden pisar desde `.env`. Si subís `MAX_UPLOAD_MB` por encima de 20, subí también `max_size` en `docker/Caddyfile`.
 
 ## Bajo carga
 
@@ -95,6 +96,9 @@ En `.crabfall/` (todas pasan `crabfall check`):
 | `search-ramp` | Búsqueda de 10/s a 150/s, para encontrar dónde se quiebra |
 | `session-refresh` | Como `shop-per-user`, 2 minutos, con el token renovado por `/auth/refresh` cada 45 s (`vu_refresh`) |
 | `upload` | 10 VUs suben un adjunto de 1 MB (multipart), verifican el `sha256`, lo bajan y lo borran |
+| `register-users` | Registra 25 usuarios nuevos, cada fila de `data/new-users.csv` una sola vez (`pick: unique`); la carga termina al acabarse las filas |
+
+Todos mandan `X-Lab-Key: "{{env.LAB_KEY}}"` (el secreto `LAB_KEY` de `config.yaml`, que Crabfall lee del `.env`): en `defaults.headers` y, además, en cada paso de `setup`, `vu_setup` y `vu_refresh`, que no toman los `defaults`. Un escenario nuevo tiene que hacer lo mismo para pasar por Caddy.
 
 ```powershell
 crabfall check shop-per-user
@@ -104,16 +108,33 @@ crabfall run shop-per-user --env local
 
 ## Subirla
 
-Va en cualquier servidor con Docker: el mismo compose más Caddy, que saca el certificado de Let's Encrypt.
+Va en cualquier servidor con Docker: el mismo compose más Caddy, que saca el certificado de Let's Encrypt y comprime con gzip.
+
+**Qué hace falta:**
+
+- **Un VPS con Docker** que permita pruebas de carga contra servidores propios. Muchos hostings (sobre todo los planes gratis) las prohíben o cortan el tráfico que las parece: revisá los términos del proveedor. Conviene uno que cobre por hora, para prenderlo solo cuando probás.
+- **Un dominio con su DNS apuntando al servidor.** Let's Encrypt lo necesita. Si no tenés, sirve un subdominio gratis (DuckDNS) o `sslip.io`, que arma un nombre con la IP (`203-0-113-7.sslip.io`).
+- **Los puertos 22, 80 y 443 abiertos**, y nada más. Postgres y la API escuchan solo en `127.0.0.1` del servidor; lo único expuesto es Caddy.
+- **El código en el servidor**: clonado de un repo privado, o copiado con `scp`/`rsync` (sin `node_modules/` ni `uploads/`).
+
+**La clave del laboratorio.** Expuesta a internet, la API tendría 50 usuarios con contraseña conocida y el registro abierto: cualquiera podría entrar y llenarle el disco con archivos. Por eso Caddy rechaza con 403 todo request que no traiga `X-Lab-Key` con el valor de `LAB_KEY`, y no se la pasa a la API. Es la misma `LAB_KEY` en el `.env` del servidor y en el tuyo, que es de donde la toma Crabfall.
 
 ```bash
-# en el servidor, con el puerto 80 y 443 abiertos y el DNS de DOMAIN apuntando a él
+# en el servidor
 echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
 echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)" >> .env
+echo "LAB_KEY=$(openssl rand -hex 24)" >> .env
 echo "TRUST_PROXY=true" >> .env
 DOMAIN=api.ejemplo.com docker compose --profile tls up -d --build
+cat .env | grep LAB_KEY          # copiala al .env de tu máquina
 ```
 
-Postgres y la API quedan escuchando solo en `127.0.0.1` del servidor. Lo único expuesto es Caddy.
+```bash
+# desde tu máquina
+curl -i https://api.ejemplo.com/health                                  # 403
+curl -i -H "X-Lab-Key: <LAB_KEY>" https://api.ejemplo.com/health        # 200 {"status":"ok"}
+```
 
-**Antes de cargarla:** probá solo servidores tuyos. Muchos hostings (sobre todo los planes gratis) prohíben las pruebas de carga o cortan el tráfico que las parece. Un VPS propio no tiene ese problema, pero conviene revisar los términos del proveedor y empezar con límites bajos en el entorno de Crabfall.
+**En Crabfall:** en `.crabfall/config.yaml` está el entorno `remote` comentado. Poné el dominio en `base_url` y `allowed_hosts`, sacá los comentarios y usá `--env remote`. `crabfall check` no sale de loopback, así que contra el servidor no se puede: probá con `check` en local y después aprobá y corré contra `remote`. Empezá con los límites bajos del entorno y subilos cuando sepas cuánto aguantan el VPS y tu conexión.
+
+Mientras corre la carga, `docker stats` en el servidor dice si la CPU o la memoria del VPS son el límite: Crabfall mide solo desde el cliente.

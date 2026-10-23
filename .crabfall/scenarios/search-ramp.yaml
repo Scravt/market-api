@@ -6,6 +6,8 @@ description: >
   (la página y el count), que tiene 10.
 data:
   searches: { file: data/searches.json, pick: random }
+defaults:
+  headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
 flows:
   search:
     steps:
