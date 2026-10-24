@@ -138,3 +138,7 @@ curl -i -H "X-Lab-Key: <LAB_KEY>" https://api.ejemplo.com/health        # 200 {"
 **En Crabfall:** en `.crabfall/config.yaml` está el entorno `remote` comentado. Poné el dominio en `base_url` y `allowed_hosts`, sacá los comentarios y usá `--env remote`. `crabfall check` no sale de loopback, así que contra el servidor no se puede: probá con `check` en local y después aprobá y corré contra `remote`. Empezá con los límites bajos del entorno y subilos cuando sepas cuánto aguantan el VPS y tu conexión.
 
 Mientras corre la carga, `docker stats` en el servidor dice si la CPU o la memoria del VPS son el límite: Crabfall mide solo desde el cliente.
+
+## License
+
+Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option. Copyright 2026 Gonzalo Martínez.
