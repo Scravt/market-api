@@ -19,7 +19,13 @@
       "Bash(crabfall schema)",
       "Bash(crabfall findings:*)",
       "Bash(crabfall compare:*)",
-      "Bash(crabfall report:*)"
+      "Bash(crabfall report:*)",
+      "mcp__crabfall__list_scenarios",
+      "mcp__crabfall__schema",
+      "mcp__crabfall__validate",
+      "mcp__crabfall__check",
+      "mcp__crabfall__findings",
+      "mcp__crabfall__compare"
     ]
   }
 }
