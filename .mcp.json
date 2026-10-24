@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "crabfall": { "command": "crabfall", "args": ["mcp"] }
+  }
+}
