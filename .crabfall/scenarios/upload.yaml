@@ -1,0 +1,54 @@
+version: 1
+name: upload
+description: >
+  Cada VU es un usuario: sube un adjunto de 1 MB (multipart), revisa que el servidor haya
+  recibido el mismo contenido (sha256), lo baja y lo borra, para no llenar el disco.
+data:
+  users: { file: data/users.csv }
+vu_setup:
+  - name: login
+    request:
+      method: POST
+      url: /auth/login
+      headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
+      json: { email: "{{users.email}}", password: "{{users.password}}" }
+    extract:
+      token: { json: $.access_token }
+    checks:
+      - status: 200
+    source: { file: src/auth.ts }
+defaults:
+  headers: { Authorization: "Bearer {{token}}", X-Lab-Key: "{{env.LAB_KEY}}" }
+  think: 1s-2s
+flows:
+  upload:
+    steps:
+      - name: upload_file
+        request:
+          method: POST
+          url: /files
+          multipart:
+            file: { file: files/adjunto-1mb.bin, filename: "adjunto-{{$uuid}}.bin" }
+        extract:
+          file_id: { json: $.id }
+        checks:
+          - status: 201
+          - { json: $.size_bytes, equals: 1048576 }
+          - { json: $.sha256, equals: 1a1da7a6383a7eeaac8d2dfb9ba63de8b936035d9d463bc57c7f4a7eb1521ffc }
+        tags: [write]
+        source: { file: src/files.ts }
+      - name: download_file
+        request: { method: GET, url: "/files/{{file_id}}/content" }
+        checks:
+          - status: 200
+        source: { file: src/files.ts }
+      - name: delete_file
+        request: { method: DELETE, url: "/files/{{file_id}}" }
+        checks:
+          - status: 204
+        tags: [write]
+        source: { file: src/files.ts }
+load:
+  executor: constant_vus
+  vus: 10
+  duration: 1m

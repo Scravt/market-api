@@ -1,0 +1,20 @@
+{$DOMAIN} {
+	encode gzip
+
+	# Laboratorio: solo pasa quien manda X-Lab-Key con el valor de LAB_KEY (.env). Sin esto, la API
+	# queda abierta a internet con 50 usuarios de contraseña conocida y el registro libre.
+	@sin_clave not header X-Lab-Key {$LAB_KEY}
+	handle @sin_clave {
+		header Content-Type application/json
+		respond `{"error":"falta el header X-Lab-Key o no coincide"}` 403
+	}
+
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy api:8080 {
+		# La clave no le llega a la API. Va acá y no como `request_header`, que Caddy corre antes
+		# del matcher y la borraría antes de compararla.
+		header_up -X-Lab-Key
+	}
+}

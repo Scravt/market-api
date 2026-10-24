@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "crabfall hook pre-tool-use"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(crabfall validate:*)",
+      "Bash(crabfall check:*)",
+      "Bash(crabfall schema)",
+      "Bash(crabfall findings:*)",
+      "Bash(crabfall compare:*)",
+      "Bash(crabfall report:*)"
+    ]
+  }
+}

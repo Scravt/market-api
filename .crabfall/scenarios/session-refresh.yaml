@@ -1,0 +1,78 @@
+version: 1
+name: session-refresh
+description: >
+  Como shop-per-user, pero cada VU renueva su token con el refresh token antes de que
+  venza (vu_refresh). Con ACCESS_TTL_SECONDS=60 y every de 45s, una corrida de 2 minutos
+  no tendría que recibir ningún 401.
+data:
+  users: { file: data/users.csv }
+  searches: { file: data/searches.json, pick: random }
+vu_setup:
+  - name: login
+    request:
+      method: POST
+      url: /auth/login
+      headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
+      json: { email: "{{users.email}}", password: "{{users.password}}" }
+    extract:
+      token: { json: $.access_token }
+      refresh_token: { json: $.refresh_token }
+      user_id: { json: $.user_id }
+    checks:
+      - status: 200
+    source: { file: src/auth.ts }
+vu_refresh:
+  every: 45s
+  steps:
+    - name: refresh
+      request:
+        method: POST
+        url: /auth/refresh
+        headers: { X-Lab-Key: "{{env.LAB_KEY}}" }
+        json: { refresh_token: "{{refresh_token}}" }
+      extract:
+        token: { json: $.access_token }
+        refresh_token: { json: $.refresh_token }
+      checks:
+        - status: 200
+      source: { file: src/auth.ts }
+defaults:
+  headers: { Authorization: "Bearer {{token}}", X-Lab-Key: "{{env.LAB_KEY}}" }
+  think: 1s-3s
+flows:
+  shop:
+    steps:
+      - name: search
+        request: { method: GET, url: "/products?category={{searches.category}}&limit=20" }
+        extract:
+          product_id: { json: "$.items[0].id" }
+        checks:
+          - status: 200
+        source: { file: src/products.ts }
+      - name: create_order
+        request:
+          method: POST
+          url: /orders
+          json: { product_id: "{{product_id}}", quantity: 1, idempotency_key: "{{$uuid}}" }
+        extract:
+          order_id: { json: $.id }
+        checks:
+          - status: 201
+          - { json: $.user_id, equals: "{{user_id}}" }
+        tags: [write]
+        source: { file: src/orders.ts }
+      - name: get_order
+        request: { method: GET, url: "/orders/{{order_id}}" }
+        checks:
+          - status: 200
+          - { json: $.user_id, equals: "{{user_id}}" }
+        source: { file: src/orders.ts }
+      - name: my_orders
+        request: { method: GET, url: "/orders?limit=10" }
+        checks:
+          - status: 200
+        source: { file: src/orders.ts }
+load:
+  executor: constant_vus
+  vus: 20
+  duration: 2m

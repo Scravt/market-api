@@ -1,0 +1,144 @@
+# market-api
+
+Tienda de ejemplo con lo que tiene una API real: Postgres, login con JWT que vence y refresh tokens, rate limiting, paginación y búsqueda sobre 100k productos, pedidos transaccionales con idempotencia y subida de archivos. Sirve para probar [Crabfall](../load-test) contra algo que se puede subir a un servidor, con TLS.
+
+A diferencia de `shop-api`, acá no hay problemas plantados: lo que aparezca bajo carga es lo que tendría una API escrita así de verdad. La sección [Bajo carga](#bajo-carga) dice dónde mirar.
+
+## Correrla
+
+Con Docker (en esta máquina, Docker está en WSL):
+
+```bash
+cp .env.example .env            # y poné un JWT_SECRET y una LAB_KEY largos
+docker compose up -d --build    # API en http://127.0.0.1:8080, Postgres en 127.0.0.1:5434
+docker compose logs -f api
+```
+
+Al arrancar aplica las migraciones y, con `SEED=true`, carga 100k productos y 50 usuarios: de `loadtest-1@example.test` a `loadtest-50@example.test`, todos con la contraseña `loadtest`.
+
+Sin Docker para la API (Postgres sigue en el compose):
+
+```bash
+docker compose up -d db
+npm install
+npm run dev                     # lee .env; con PORT=8081 no choca con el contenedor
+```
+
+Tests de integración. Usan la base `market_test`, que el compose crea la primera vez:
+
+```bash
+npm test
+npm run typecheck
+```
+
+## Endpoints
+
+| Método y ruta | Auth | Qué hace |
+| --- | --- | --- |
+| `GET /health` | — | `{status: ok}` si hay base; si no, 503 |
+| `POST /auth/register` | — | `{email, password, name?}` → 201 con usuario y tokens; 409 si el email existe |
+| `POST /auth/login` | — | `{email, password}` → `{user_id, access_token, expires_in, refresh_token}` |
+| `POST /auth/refresh` | — | `{refresh_token}` → par nuevo; el usado queda revocado (sirve una vez) |
+| `GET /me` | Bearer | El usuario del token |
+| `GET /products` | — | `q`, `category`, `min_price`, `max_price`, `sort` (`newest`, `price`, `-price`, `name`), `page`, `limit` ≤ 100 → `{items, page, limit, total}` |
+| `GET /products/categories` | — | Categorías con cantidad de productos |
+| `GET /products/:id` | — | Un producto; 404 si no existe |
+| `POST /orders` | Bearer | `{product_id, quantity?, idempotency_key?}` → 201; repetir la clave devuelve el mismo pedido con 200; 409 sin stock |
+| `GET /orders` | Bearer | Pedidos propios, del más nuevo al más viejo: `limit`, `cursor` → `{items, next_cursor}` |
+| `GET /orders/:id` | Bearer | Un pedido propio; uno ajeno da 404 |
+| `POST /files` | Bearer | Multipart con el campo `file` → 201 con `id`, tamaño y `sha256`; 413 si supera `MAX_UPLOAD_MB` |
+| `GET /files`, `GET /files/:id` | Bearer | Archivos propios y su metadata |
+| `GET /files/:id/content` | Bearer | El archivo, con su nombre original |
+| `DELETE /files/:id` | Bearer | 204 |
+
+Errores: siempre `{error: "…"}` con el status que corresponde. Un 401 trae `WWW-Authenticate`, y si el token venció lo dice: `error_description="expired"`. Un 429 trae `Retry-After`, `RateLimit` y `RateLimit-Policy`.
+
+## Configuración
+
+| Variable | Por defecto | Qué es |
+| --- | --- | --- |
+| `JWT_SECRET` | — (obligatoria) | Firma de los access tokens (HS256) |
+| `ACCESS_TTL_SECONDS` | `300` | Vida del access token |
+| `REFRESH_TTL_SECONDS` | `604800` (7 días) | Vida del refresh token |
+| `RATE_LIMIT_PER_MINUTE` | `600` | Requests por minuto por usuario en las rutas con Bearer; `0` lo apaga |
+| `AUTH_RATE_LIMIT_PER_MINUTE` | `30` | Login y registro por minuto por IP (el refresh no cuenta); `0` lo apaga |
+| `PG_POOL_MAX` | `10` | Conexiones a Postgres |
+| `MAX_UPLOAD_MB` | `10` | Tamaño máximo por archivo |
+| `TRUST_PROXY` | `false` | `true` detrás de Caddy, para limitar por la IP real |
+| `LAB_KEY` | — (obligatoria) | Clave del laboratorio: con el perfil `tls`, Caddy rechaza con 403 todo request sin `X-Lab-Key: <LAB_KEY>`. Los escenarios de Crabfall la mandan siempre |
+| `DATABASE_URL`, `HOST`, `PORT`, `UPLOAD_DIR` | ver `src/config.ts` | |
+| `SEED`, `SEED_PRODUCTS`, `SEED_USERS`, `SEED_PASSWORD` | `100000`, `50`, `loadtest` | Datos de prueba al arrancar |
+
+En el compose, las de límites, TTL, `MAX_UPLOAD_MB` y `SEED_PASSWORD` se pueden pisar desde `.env`. Si subís `MAX_UPLOAD_MB` por encima de 20, subí también `max_size` en `docker/Caddyfile`.
+
+## Bajo carga
+
+Decisiones comunes que tienen costo, para saber qué esperar:
+
+- **Búsqueda con `q`:** ILIKE `%texto%` sobre índices de trigramas (`pg_trgm`). Cada búsqueda hace dos consultas: la página, que corta en los primeros 20, y el `count(*)` del total, que es la cara (~7 ms; sin el índice eran ~74 ms y la API se planchaba en ~95 búsquedas/s con el pool de 10).
+- **Paginación por página:** `OFFSET` crece con `page`. Los pedidos usan cursor, que no tiene ese problema.
+- **Login:** scrypt cuesta ~40 ms de CPU por intento. Corre en el pool de libuv (4 hilos por defecto), así que no bloquea el event loop pero tiene su propio techo.
+- **Pool de Postgres:** 10 conexiones. Bajo concurrencia alta, los requests esperan conexión.
+- **Rate limit en memoria:** vale para una sola instancia. Con 20 VUs en un mismo usuario se llega rápido a 600 por minuto.
+- **Login por IP:** 30 por minuto. Una prueba con `vu_setup` de más de 30 VUs desde una sola máquina recibe 429 en el login, salvo que se suba `AUTH_RATE_LIMIT_PER_MINUTE`.
+- **Tokens:** el access token dura 5 minutos (`ACCESS_TTL_SECONDS`). Una corrida más larga necesita `vu_refresh`, como en `session-refresh`; sin eso empieza a recibir 401.
+
+## Pruebas con Crabfall
+
+En `.crabfall/` (todas pasan `crabfall check`):
+
+| Escenario | Qué prueba |
+| --- | --- |
+| `smoke` | Salud, listado y un producto, 5/s |
+| `browse` | Búsqueda, categorías y páginas al azar, anónimo, 20/s |
+| `shop-per-user` | 20 VUs, uno por usuario de `data/users.csv`: login una vez y después buscan, compran y revisan sus pedidos con pausas |
+| `rate-limit` | Un usuario a 20/s contra un límite de 10/s: tiene que aparecer el 429 |
+| `search-ramp` | Búsqueda de 10/s a 150/s, para encontrar dónde se quiebra |
+| `session-refresh` | Como `shop-per-user`, 2 minutos, con el token renovado por `/auth/refresh` cada 45 s (`vu_refresh`) |
+| `upload` | 10 VUs suben un adjunto de 1 MB (multipart), verifican el `sha256`, lo bajan y lo borran |
+| `register-users` | Registra 25 usuarios nuevos, cada fila de `data/new-users.csv` una sola vez (`pick: unique`); la carga termina al acabarse las filas |
+
+Todos mandan `X-Lab-Key: "{{env.LAB_KEY}}"` (el secreto `LAB_KEY` de `config.yaml`, que Crabfall lee del `.env`): en `defaults.headers` y, además, en cada paso de `setup`, `vu_setup` y `vu_refresh`, que no toman los `defaults`. Un escenario nuevo tiene que hacer lo mismo para pasar por Caddy.
+
+```powershell
+crabfall check shop-per-user
+crabfall approve shop-per-user --env local
+crabfall run shop-per-user --env local
+```
+
+## Subirla
+
+Va en cualquier servidor con Docker: el mismo compose más Caddy, que saca el certificado de Let's Encrypt y comprime con gzip.
+
+**Qué hace falta:**
+
+- **Un VPS con Docker** que permita pruebas de carga contra servidores propios. Muchos hostings (sobre todo los planes gratis) las prohíben o cortan el tráfico que las parece: revisá los términos del proveedor. Conviene uno que cobre por hora, para prenderlo solo cuando probás.
+- **Un dominio con su DNS apuntando al servidor.** Let's Encrypt lo necesita. Si no tenés, sirve un subdominio gratis (DuckDNS) o `sslip.io`, que arma un nombre con la IP (`203-0-113-7.sslip.io`).
+- **Los puertos 22, 80 y 443 abiertos**, y nada más. Postgres y la API escuchan solo en `127.0.0.1` del servidor; lo único expuesto es Caddy.
+- **El código en el servidor**: clonado de un repo privado, o copiado con `scp`/`rsync` (sin `node_modules/` ni `uploads/`).
+
+**La clave del laboratorio.** Expuesta a internet, la API tendría 50 usuarios con contraseña conocida y el registro abierto: cualquiera podría entrar y llenarle el disco con archivos. Por eso Caddy rechaza con 403 todo request que no traiga `X-Lab-Key` con el valor de `LAB_KEY`, y no se la pasa a la API. Es la misma `LAB_KEY` en el `.env` del servidor y en el tuyo, que es de donde la toma Crabfall.
+
+```bash
+# en el servidor
+echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
+echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)" >> .env
+echo "LAB_KEY=$(openssl rand -hex 24)" >> .env
+echo "TRUST_PROXY=true" >> .env
+DOMAIN=api.ejemplo.com docker compose --profile tls up -d --build
+cat .env | grep LAB_KEY          # copiala al .env de tu máquina
+```
+
+```bash
+# desde tu máquina
+curl -i https://api.ejemplo.com/health                                  # 403
+curl -i -H "X-Lab-Key: <LAB_KEY>" https://api.ejemplo.com/health        # 200 {"status":"ok"}
+```
+
+**En Crabfall:** en `.crabfall/config.yaml` está el entorno `remote` comentado. Poné el dominio en `base_url` y `allowed_hosts`, sacá los comentarios y usá `--env remote`. `crabfall check` no sale de loopback, así que contra el servidor no se puede: probá con `check` en local y después aprobá y corré contra `remote`. Empezá con los límites bajos del entorno y subilos cuando sepas cuánto aguantan el VPS y tu conexión.
+
+Mientras corre la carga, `docker stats` en el servidor dice si la CPU o la memoria del VPS son el límite: Crabfall mide solo desde el cliente.
+
+## License
+
+Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option. Copyright 2026 Gonzalo Martínez.

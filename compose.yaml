@@ -1,0 +1,66 @@
+# Local:       docker compose up -d --build        → API en http://127.0.0.1:8080
+# Con TLS:     DOMAIN=api.ejemplo.com docker compose --profile tls up -d --build
+name: market-api
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: market
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-market}
+      POSTGRES_DB: market
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./docker/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql:ro
+    ports:
+      - "127.0.0.1:5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U market -d market"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://market:${POSTGRES_PASSWORD:-market}@db:5432/market
+      JWT_SECRET: ${JWT_SECRET:?definí JWT_SECRET en .env o en el entorno}
+      SEED: "true"
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      ACCESS_TTL_SECONDS: ${ACCESS_TTL_SECONDS:-300}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-600}
+      AUTH_RATE_LIMIT_PER_MINUTE: ${AUTH_RATE_LIMIT_PER_MINUTE:-30}
+      PG_POOL_MAX: ${PG_POOL_MAX:-10}
+      REFRESH_TTL_SECONDS: ${REFRESH_TTL_SECONDS:-604800}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
+      SEED_PASSWORD: ${SEED_PASSWORD:-loadtest}
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Solo con --profile tls: Caddy saca el certificado de Let's Encrypt para DOMAIN.
+  caddy:
+    image: caddy:2-alpine
+    profiles: [tls]
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+      LAB_KEY: "${LAB_KEY:?definí LAB_KEY en .env, sin ella Caddy dejaría pasar a cualquiera}"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on: [api]
+    restart: unless-stopped
+
+volumes:
+  db:
+  uploads:
+  caddy:
